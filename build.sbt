@@ -7,11 +7,25 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.13.6"
 
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
+val scalaTestPlusPlayVersion = "5.1.0"
+val MysqlConnectorJavaVersion = "6.0.6"
+val SlickVersion = "3.3.3"
 
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.example.controllers._"
+libraryDependencies ++= Seq(
+  guice,
+  "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusPlayVersion % Test,
+  "mysql" % "mysql-connector-java" % MysqlConnectorJavaVersion,
+  "com.typesafe.slick" %% "slick" % SlickVersion,
+  "com.typesafe.slick" %% "slick-codegen" % SlickVersion,
+  "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
+)
 
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "com.example.binders._"
+enablePlugins(FlywayPlugin)
+import com.typesafe.config.ConfigFactory
+val DBConfig = ConfigFactory.parseFile(new File("conf/application.conf"))
+flywayUser := DBConfig.getString("db.user")
+flywayPassword := DBConfig.getString("db.password")
+flywayUrl := DBConfig.getString("db.url")
+flywayLocations := Seq(
+  "filesystem:db/migrations"
+)
