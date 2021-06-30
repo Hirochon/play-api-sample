@@ -1,3 +1,4 @@
-GET     /hello          controllers.HelloController.fetchAll
+GET     /hel            controllers.HelloController.fetchAll
 POST    /hel            controllers.HelloController.postNone
 POST    /hello          controllers.HelloController.postString
+GET     /hello          controllers.HelloController.getTodo
