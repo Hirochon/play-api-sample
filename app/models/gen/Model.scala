@@ -1,4 +1,6 @@
 package models.gen
+
+import play.api.libs.json.{Json, Reads, Writes}
 // AUTO-GENERATED Slick data model
 /** Stand-alone Slick data model for immediate use */
 object Model extends {

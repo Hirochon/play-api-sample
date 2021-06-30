@@ -1,11 +1,13 @@
 package controllers
 
-import play.api.libs.json._
-
 import javax.inject.Inject
 import play.api.mvc._
+import play.api.libs.json._
+
 import slick.jdbc.MySQLProfile.api._
-import models.gen.Model.{Todo, TodoRow}
+
+//import models.gen.Model.{Todo, TodoRow}
+import models.gen.Model._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -37,22 +39,36 @@ class HelloController @Inject() (val controllerComponents: ControllerComponents)
   }
 
   def getTodo: Action[AnyContent] = Action {
-    implicit val todoWrites: Writes[TodoRow] = Json.writes[TodoRow]
-
-    val a = TodoRow(id = 1, todo=Option("aaa"), status = Option(3))
-
-    println(Json.toJson(a))
+    case class TodoWriter(id: Int, todo: Option[String], status: Option[Int])
+    object TodoWriter {
+      implicit val todoWrites: Writes[TodoWriter] = Json.writes[TodoWriter]
+    }
+//    case class SeqTodoRow(todos: Seq[TodoRow])
+//    object SeqTodoRow {
+//      implicit val seqTodoWrites: Writes[SeqTodoRow] = Json.writes[SeqTodoRow]
+//    }
 
     val tmpTodoAction = db.run(todoTable.result)
     val todoAction = Await.result(tmpTodoAction, Duration.Inf)
-    val todos = todoAction.map(action =>
-      TodoRow(
+//    val seqTodos = SeqTodoRow(
+//      todos = todoAction.map(action =>
+//        TodoRow(
+//          id = action.id,
+//          todo = action.todo,
+//          status = action.status
+//        )
+//      )
+//    )
+
+    val todo = todoAction.map(action =>
+      TodoWriter(
         id = action.id,
         todo = action.todo,
         status = action.status
       )
     ).head
-    val todoJson = Json.toJson(todos)(todoWrites)
+
+    val todoJson = Json.toJson(todo)
     Ok(todoJson)
   }
 }
